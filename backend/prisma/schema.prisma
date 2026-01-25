@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  COACH
+  CLIENT
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  nama             String
+  email            String?
+  password         String
+  phone            String    @unique
+  role             Role      @default(CLIENT)
+  weight           Float?    // Berat badan (kg)
+  height           Float?    // Tinggi badan (cm)
+  coachId          Int?
+  coach            User?     @relation("CoachClients", fields: [coachId], references: [id])
+  clients          User[]    @relation("CoachClients")
+  videos           Video[]
+  schedules        Schedule[]
+  imtHistory       IMTHistory[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  workoutProofs    WorkoutProof[]
+  recommendations  Recommendation[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Video {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?  @db.Text
+  youtubeUrl  String
+  category    String   // kurus, normal, overweight, obesitas
+  coachId     Int
+  coach       User     @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Schedule {
+  id        Int      @id @default(autoincrement())
+  clientId  Int
+  date      DateTime
+  title     String?
+  completed Boolean  @default(false)
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([clientId, date])
+}
+
+model IMTHistory {
+  id        Int      @id @default(autoincrement())
+  clientId  Int
+  weight    Float
+  height    Float
+  imt       Float
+  category  String   // kurus, normal, overweight, obesitas
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  content    String   @db.Text
+  isRead     Boolean  @default(false)
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model WorkoutProof {
+  id        Int      @id @default(autoincrement())
+  clientId  Int
+  imageUrl  String?
+  notes     String?  @db.Text
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Recommendation {
+  id          Int      @id @default(autoincrement())
+  clientId    Int
+  coachId     Int
+  title       String
+  description String?  @db.Text
+  exercises   String?  @db.Text // JSON array of exercises
+  client      User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model FoodRecommendation {
+  id          Int      @id @default(autoincrement())
+  clientId    Int
+  coachId     Int
+  title       String
+  description String?  @db.Text
+  foods       String?  @db.Text // JSON array of food items
+  mealType    String?  // sarapan, makan siang, makan malam, snack
+  createdAt   DateTime @default(now())
+}

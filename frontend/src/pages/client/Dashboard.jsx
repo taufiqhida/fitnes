@@ -252,10 +252,10 @@ export default function ClientDashboard() {
                                     <Line
                                         type="monotone"
                                         dataKey="imt"
-                                        stroke="var(--primary)"
-                                        strokeWidth={3}
-                                        dot={{ fill: 'var(--primary)', strokeWidth: 2, r: 5 }}
-                                        activeDot={{ r: 7, fill: 'var(--primary)' }}
+                                        stroke="#7c3aed"
+                                        strokeWidth={4}
+                                        dot={{ fill: '#7c3aed', strokeWidth: 2, r: 6 }}
+                                        activeDot={{ r: 8, fill: '#7c3aed', stroke: '#fff', strokeWidth: 2 }}
                                     />
                                 </LineChart>
                             </ResponsiveContainer>

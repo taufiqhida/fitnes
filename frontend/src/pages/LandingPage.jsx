@@ -1,10 +1,14 @@
+import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { Link } from 'react-router-dom';
 import {
     TrendingDown, CheckCircle, TrendingUp, AlertTriangle,
     Calculator, BarChart3, UserCheck, MessageCircle, Video, Lightbulb,
-    MessageSquare
+    MessageSquare, Users
 } from 'lucide-react';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5002/api';
 
 const imtCategories = [
     {
@@ -71,6 +75,25 @@ const features = [
 ];
 
 export default function LandingPage() {
+    const [stats, setStats] = useState({
+        totalClients: 0,
+        totalCoaches: 0,
+        totalVideos: 0
+    });
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
+
+    const fetchStats = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/stats`);
+            setStats(res.data);
+        } catch (error) {
+            console.error('Failed to fetch stats:', error);
+        }
+    };
+
     return (
         <div className="landing">
             <Header />
@@ -82,6 +105,58 @@ export default function LandingPage() {
                 <p>
                     Kenali kategori Indeks Massa Tubuh (IMT) Anda dan mulai perjalanan menuju tubuh yang lebih sehat
                 </p>
+
+                {/* Stats Preview */}
+                <div style={{
+                    display: 'flex',
+                    gap: '2rem',
+                    justifyContent: 'center',
+                    marginTop: '2rem',
+                    flexWrap: 'wrap'
+                }}>
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '1.5rem',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        backdropFilter: 'blur(10px)',
+                        minWidth: '150px'
+                    }}>
+                        <UserCheck size={32} style={{ color: '#4CAF50', marginBottom: '0.5rem' }} />
+                        <h3 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0.5rem 0' }}>
+                            {stats.totalCoaches}
+                        </h3>
+                        <p style={{ margin: 0, opacity: 0.9 }}>Pelatih</p>
+                    </div>
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '1.5rem',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        backdropFilter: 'blur(10px)',
+                        minWidth: '150px'
+                    }}>
+                        <Video size={32} style={{ color: '#2196F3', marginBottom: '0.5rem' }} />
+                        <h3 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0.5rem 0' }}>
+                            {stats.totalVideos}
+                        </h3>
+                        <p style={{ margin: 0, opacity: 0.9 }}>Video</p>
+                    </div>
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '1.5rem',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        backdropFilter: 'blur(10px)',
+                        minWidth: '150px'
+                    }}>
+                        <Users size={32} style={{ color: '#9C27B0', marginBottom: '0.5rem' }} />
+                        <h3 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0.5rem 0' }}>
+                            {stats.totalClients}
+                        </h3>
+                        <p style={{ margin: 0, opacity: 0.9 }}>Client</p>
+                    </div>
+                </div>
             </section>
 
             {/* IMT Categories */}

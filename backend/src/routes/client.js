@@ -210,6 +210,25 @@ router.post('/workout-done', upload.single('photo'), async (req, res) => {
             }
         });
 
+        // Mark today's schedule as completed
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        await prisma.schedule.updateMany({
+            where: {
+                clientId: parseInt(clientId),
+                date: {
+                    gte: today,
+                    lt: tomorrow
+                }
+            },
+            data: {
+                completed: true
+            }
+        });
+
         res.status(201).json(proof);
     } catch (error) {
         console.error('Mark workout done error:', error);

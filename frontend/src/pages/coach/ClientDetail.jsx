@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Scale, Ruler, Activity, Send, X } from 'lucide-react';
+import { ArrowLeft, Scale, Ruler, Activity, Send, X, TrendingUp } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
@@ -143,36 +144,78 @@ export default function ClientDetail() {
             {/* IMT Chart */}
             <div className="data-card" style={{ marginBottom: '2rem' }}>
                 <div className="data-header">
-                    <h3 className="data-title">Kurva IMT</h3>
+                    <h3 className="data-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <TrendingUp size={20} />
+                        Kurva IMT
+                    </h3>
                 </div>
-                <div style={{ padding: '2rem' }}>
-                    {client.imtHistory.length === 0 ? (
-                        <div className="empty-state">
-                            <p>Belum ada riwayat IMT</p>
+                <div style={{ padding: '1.5rem', height: '280px' }}>
+                    {client.imtHistory.length < 2 ? (
+                        <div className="empty-state" style={{ height: '100%' }}>
+                            <TrendingUp size={40} style={{ opacity: 0.5 }} />
+                            <p>Minimal 2 data IMT untuk menampilkan kurva</p>
                         </div>
                     ) : (
-                        <div style={{ position: 'relative', height: '200px', display: 'flex', alignItems: 'flex-end', gap: '1rem', justifyContent: 'center' }}>
-                            {/* Simple bar chart */}
-                            {client.imtHistory.slice().reverse().map((record, index) => (
-                                <div key={record.id} style={{ textAlign: 'center' }}>
-                                    <div style={{
-                                        width: '60px',
-                                        height: `${Math.min(record.imt * 5, 150)}px`,
-                                        background: `linear-gradient(to top, ${getCategoryColor(record.category)}, ${getCategoryColor(record.category)}80)`,
-                                        borderRadius: '0.5rem 0.5rem 0 0',
-                                        display: 'flex',
-                                        alignItems: 'flex-start',
-                                        justifyContent: 'center',
-                                        paddingTop: '0.5rem'
-                                    }}>
-                                        <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{record.imt.toFixed(1)}</span>
-                                    </div>
-                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                                        {new Date(record.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart
+                                data={client.imtHistory.slice().reverse().map(item => ({
+                                    date: new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+                                    imt: parseFloat(item.imt.toFixed(1)),
+                                    category: item.category
+                                }))}
+                                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                                <XAxis
+                                    dataKey="date"
+                                    stroke="var(--text-secondary)"
+                                    fontSize={12}
+                                    tickLine={false}
+                                />
+                                <YAxis
+                                    stroke="var(--text-secondary)"
+                                    fontSize={12}
+                                    domain={['dataMin - 2', 'dataMax + 2']}
+                                    tickLine={false}
+                                />
+                                <Tooltip
+                                    content={({ active, payload }) => {
+                                        if (active && payload && payload.length) {
+                                            const data = payload[0].payload;
+                                            return (
+                                                <div style={{
+                                                    background: 'rgba(15, 23, 42, 0.95)',
+                                                    border: '1px solid var(--border-color)',
+                                                    borderRadius: '0.5rem',
+                                                    padding: '0.75rem 1rem'
+                                                }}>
+                                                    <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{data.date}</p>
+                                                    <p style={{ color: getCategoryColor(data.category) }}>
+                                                        IMT: <strong>{data.imt}</strong>
+                                                    </p>
+                                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                                        {getCategoryLabel(data.category)}
+                                                    </p>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    }}
+                                />
+                                {/* Reference lines for BMI categories */}
+                                <ReferenceLine y={18.5} stroke="#3b82f6" strokeDasharray="5 5" label={{ value: 'Kurus', fill: '#3b82f6', fontSize: 10, position: 'right' }} />
+                                <ReferenceLine y={25} stroke="#f59e0b" strokeDasharray="5 5" label={{ value: 'Overweight', fill: '#f59e0b', fontSize: 10, position: 'right' }} />
+                                <ReferenceLine y={30} stroke="#ef4444" strokeDasharray="5 5" label={{ value: 'Obesitas', fill: '#ef4444', fontSize: 10, position: 'right' }} />
+                                <Line
+                                    type="monotone"
+                                    dataKey="imt"
+                                    stroke="#7c3aed"
+                                    strokeWidth={4}
+                                    dot={{ fill: '#7c3aed', strokeWidth: 2, r: 6 }}
+                                    activeDot={{ r: 8, fill: '#7c3aed', stroke: '#fff', strokeWidth: 2 }}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
                     )}
                 </div>
             </div>

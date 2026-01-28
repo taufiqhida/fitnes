@@ -23,6 +23,7 @@ export default function ClientSchedule() {
     const [photoPreview, setPhotoPreview] = useState(null);
     const [notes, setNotes] = useState('');
     const [error, setError] = useState('');
+    const [toast, setToast] = useState({ show: false, message: '', type: '' }); // success or error
     const fileInputRef = useRef(null);
 
     // Calendar state
@@ -79,6 +80,13 @@ export default function ClientSchedule() {
         setError('');
     };
 
+    const showToast = (message, type) => {
+        setToast({ show: true, message, type });
+        setTimeout(() => {
+            setToast({ show: false, message: '', type: '' });
+        }, 3000); // Hide after 3 seconds
+    };
+
     const markAsDone = async () => {
         if (!photo) {
             setError('Foto bukti latihan wajib diupload');
@@ -103,9 +111,17 @@ export default function ClientSchedule() {
             });
 
             setModalOpen(false);
-            fetchSchedule();
+
+            // Wait a bit for backend to update, then refresh
+            setTimeout(() => {
+                fetchSchedule();
+            }, 500);
+
+            showToast('✅ Absen berhasil! Latihan telah tercatat.', 'success');
         } catch (error) {
-            setError(error.response?.data?.message || 'Gagal menandai latihan');
+            const errorMsg = error.response?.data?.message || 'Gagal menandai latihan';
+            setError(errorMsg);
+            showToast('❌ Absen gagal: ' + errorMsg, 'error');
         } finally {
             setMarking(false);
         }
@@ -556,6 +572,53 @@ export default function ClientSchedule() {
                     </button>
                 </div>
             </Modal>
-        </div>
+
+            {/* Toast Notification */}
+            {
+                toast.show && (
+                    <div style={{
+                        position: 'fixed',
+                        top: '2rem',
+                        right: '2rem',
+                        background: toast.type === 'success'
+                            ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                            : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        color: 'white',
+                        padding: '1rem 1.5rem',
+                        borderRadius: '0.75rem',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+                        zIndex: 9999,
+                        minWidth: '300px',
+                        maxWidth: '500px',
+                        animation: 'slideIn 0.3s ease-out',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        fontSize: '0.95rem',
+                        fontWeight: 500
+                    }}>
+                        {toast.type === 'success' ? (
+                            <Check size={24} style={{ flexShrink: 0 }} />
+                        ) : (
+                            <X size={24} style={{ flexShrink: 0 }} />
+                        )}
+                        <span>{toast.message}</span>
+                    </div>
+                )
+            }
+
+            <style>{`
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `}</style>
+        </div >
     );
 }

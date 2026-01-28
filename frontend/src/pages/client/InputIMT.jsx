@@ -3,7 +3,7 @@ import { Calculator, TrendingUp } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
-const API_URL = 'http://localhost:5002/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function InputIMT() {
     const { user } = useAuth();

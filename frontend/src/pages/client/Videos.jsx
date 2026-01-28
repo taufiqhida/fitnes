@@ -3,7 +3,7 @@ import { Video, ExternalLink, Filter } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
-const API_URL = 'http://localhost:5002/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const CATEGORIES = [
     { value: 'all', label: 'Semua' },

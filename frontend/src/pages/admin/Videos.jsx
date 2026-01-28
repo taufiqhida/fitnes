@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Video, ExternalLink, User, Search, Filter } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5002/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const CATEGORIES = [
     { value: 'all', label: 'Semua Kategori', color: 'var(--text-secondary)' },

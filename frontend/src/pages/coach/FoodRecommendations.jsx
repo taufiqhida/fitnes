@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
 
-const API_URL = 'http://localhost:5002/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const MEAL_TYPES = [
     { key: 'sarapan', label: 'Sarapan', icon: '🌅' },

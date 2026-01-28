@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Activity, Phone, User, Lock, Users } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5002/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function RegisterPage() {
     const [nama, setNama] = useState('');

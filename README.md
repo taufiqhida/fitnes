@@ -15,7 +15,7 @@ Aplikasi web untuk manajemen fitness dengan tracking IMT, jadwal latihan, dan ko
 ## 📋 Persyaratan Sistem
 
 - **Node.js** v18.x atau lebih tinggi
-- **PostgreSQL** v14 atau lebih tinggi
+- **MySQL** v8.0 atau lebih tinggi
 - **NPM** v8.x atau lebih tinggi
 - **Git**
 
@@ -40,27 +40,31 @@ node --version
 npm --version
 ```
 
-### 3. Install PostgreSQL
+### 3. Install MySQL
 
 ```bash
-# Install PostgreSQL
-sudo apt install -y postgresql postgresql-contrib
+# Install MySQL Server
+sudo apt install -y mysql-server
 
-# Start PostgreSQL service
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
+# Amankan instalasi MySQL
+sudo mysql_secure_installation
 
-# Buat database dan user
-sudo -u postgres psql
+# Start MySQL service
+sudo systemctl start mysql
+sudo systemctl enable mysql
+
+# Login ke MySQL
+sudo mysql
 ```
 
-Di dalam PostgreSQL console:
+Di dalam MySQL console:
 
 ```sql
 CREATE DATABASE fitness_db;
-CREATE USER fitness_user WITH ENCRYPTED PASSWORD 'your_secure_password';
-GRANT ALL PRIVILEGES ON DATABASE fitness_db TO fitness_user;
-\q
+CREATE USER 'fitness_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON fitness_db.* TO 'fitness_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
 ```
 
 ### 4. Install PM2 (Process Manager)
@@ -93,7 +97,7 @@ nano .env
 
 ```env
 # Database
-DATABASE_URL="postgresql://fitness_user:your_secure_password@localhost:5432/fitness_db"
+DATABASE_URL="mysql://fitness_user:your_secure_password@localhost:3306/fitness_db"
 
 # JWT Secret (ganti dengan string random yang kuat)
 JWT_SECRET="your-very-secure-random-secret-key-here-change-this"
@@ -277,11 +281,17 @@ sudo ufw enable
    - Edit `backend/.env`
    - Gunakan string random yang kuat untuk `JWT_SECRET`
 
-3. **Secure PostgreSQL:**
+3. **Secure MySQL:**
 
 ```bash
-sudo -u postgres psql
-\password postgres
+# Jalankan lagi untuk memastikan keamanan
+sudo mysql_secure_installation
+
+# Atau set password root MySQL
+sudo mysql
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'your_root_password';
+FLUSH PRIVILEGES;
+EXIT;
 ```
 
 ## 📝 Login Credentials Default
@@ -333,14 +343,14 @@ pm2 restart fitness-frontend
 ### Database Connection Error
 
 ```bash
-# Cek status PostgreSQL
-sudo systemctl status postgresql
+# Cek status MySQL
+sudo systemctl status mysql
 
-# Restart PostgreSQL
-sudo systemctl restart postgresql
+# Restart MySQL
+sudo systemctl restart mysql
 
 # Cek koneksi
-psql -U fitness_user -d fitness_db -h localhost
+mysql -u fitness_user -p fitness_db -h localhost
 ```
 
 ### Port Already in Use

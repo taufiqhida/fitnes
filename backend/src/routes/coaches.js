@@ -35,12 +35,25 @@ router.post('/', async (req, res) => {
     try {
         const { nama, email, password, phone } = req.body;
 
-        const existingUser = await prisma.user.findUnique({
-            where: { email }
-        });
+        let existingUser = null;
+        if (email) {
+            existingUser = await prisma.user.findFirst({
+                where: { email }
+            });
+        }
 
         if (existingUser) {
             return res.status(400).json({ message: 'Email sudah terdaftar' });
+        }
+
+        if (phone) {
+            const existingPhone = await prisma.user.findUnique({
+                where: { phone }
+            });
+
+            if (existingPhone) {
+                return res.status(400).json({ message: 'Nomor HP sudah terdaftar' });
+            }
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);

@@ -190,12 +190,13 @@ export default function Pelatih() {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">No. HP</label>
+                            <label className="form-label">No. HP (Gunakan untuk Login)</label>
                             <input
                                 type="tel"
                                 className="form-input"
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                required
                             />
                         </div>
                         <div className="form-group">

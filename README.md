@@ -82,7 +82,7 @@ sudo chown -R $USER:$USER fitnes
 cd fitnes
 ```
 
-## ⚙️ Konfigurasi
+## ⚙️ Konfigurasi taudiq
 
 ### Backend Configuration
 
